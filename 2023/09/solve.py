@@ -22,7 +22,7 @@ def solve():
             d = [diff[i][j]-diff[i][j-1] for j in range(1, len(diff[i]))]
             diff.append(d)
             i += 1
-            if all([x == 0 for x in d]):
+            if all(x == 0 for x in d):
                 stop = True
         diff = diff[::-1]
         for i in range(1, len(diff)):
