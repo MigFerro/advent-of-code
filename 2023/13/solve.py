@@ -26,15 +26,11 @@ def sim_ind(G, part2=False):
         sa = ''.join([''.join(row) for row in above])
         sb = ''.join([''.join(row) for row in bellow[::-1]])
         
-        if part2:
-            diff = sum(sa[i] != sb[i] for i in range(len(sa)))
+        diff = sum(sa[i] != sb[i] for i in range(len(sa)))
+        diff_val = 1 if part2 else 0
 
-            if diff == 1:
-                return ra
-
-        if not part2:
-            if sa == sb:
-                return ra
+        if diff == diff_val:
+            return ra
 
     return None
 
