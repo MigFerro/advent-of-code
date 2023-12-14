@@ -45,17 +45,11 @@ def solve():
     def get_pos_key():
         return tuple(r for r,v in grid.items() if v == 2)
 
-    def get_score():
-        to_calc = [r for r,v in grid.items() if v == 2]
-        score = 0
-        for r in to_calc:
-            score += R-r[0]
-
-        return score
-
     n = 0
     SEEN = {}
     NMAX = 1000000000
+    score = 0
+    print_part = False
     while n < NMAX:
         n += 1
         di = 0
@@ -63,15 +57,22 @@ def solve():
             key_ind = 0 if di in [0,2] else 1
             rev = True if di in [2,3] else False
             to_move = sorted([r for r,v in grid.items() if v==2], key=lambda x: x[key_ind], reverse=rev)
+            if (n, di) in [(1,0), (NMAX, 3)]:
+                print_part = True
+
             for r in to_move:
                 nr = move_rock(r, dir)
                 if nr != r:
                     grid[r] = 0
                     grid[nr] = 2
 
-            #part 1
-            if n == 1 and di == 0:
-                print(get_score())
+                if print_part:
+                    score += R-nr[0]
+
+            if print_part:
+                print(f'part {(n==NMAX) + 1}: ', score)
+                print_part = False
+                score = 0
 
             di += 1
 
@@ -83,9 +84,6 @@ def solve():
             n = n + ndiff * (nleft // ndiff)
 
         SEEN[pk] = n
-
-    score = get_score()
-    print(score)
 
 
 if __name__ == "__main__":
