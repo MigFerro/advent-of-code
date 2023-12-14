@@ -46,9 +46,9 @@ def solve():
         return tuple(r for r,v in grid.items() if v == 2)
 
     n = 0
-    SEEN = {}
+    SEEN = set()
+    SEEN_ARR = []
     NMAX = 1000000000
-    score = 0
     print_part = False
     while n < NMAX:
         n += 1
@@ -57,7 +57,7 @@ def solve():
             key_ind = 0 if di in [0,2] else 1
             rev = True if di in [2,3] else False
             to_move = sorted([r for r,v in grid.items() if v==2], key=lambda x: x[key_ind], reverse=rev)
-            if (n, di) in [(1,0), (NMAX, 3)]:
+            if (n, di) == (1,0):
                 print_part = True
 
             for r in to_move:
@@ -66,24 +66,22 @@ def solve():
                     grid[r] = 0
                     grid[nr] = 2
 
-                if print_part:
-                    score += R-nr[0]
-
             if print_part:
-                print(f'part {(n==NMAX) + 1}: ', score)
+                print('part 1: ', sum(R-x for (x,_), v in grid.items() if v == 2))
                 print_part = False
-                score = 0
 
             di += 1
 
         pk = get_pos_key()
         if pk in SEEN:
-            nprev = SEEN[pk]
+            nprev = SEEN_ARR.index(pk) + 1
             ndiff = n-nprev
-            nleft = NMAX - n
-            n = n + ndiff * (nleft // ndiff)
+            last_n = (NMAX - nprev) % ndiff + nprev
+            print(sum(R-x for (x,_) in SEEN_ARR[last_n]))
+            break
 
-        SEEN[pk] = n
+        SEEN.add(pk)
+        SEEN_ARR.append(pk)
 
 
 if __name__ == "__main__":
