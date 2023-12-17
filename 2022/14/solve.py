@@ -1,5 +1,6 @@
 #!/bin/bash
 import sys
+from collections import defaultdict
 
 def read_input():
     input_file_code = sys.argv[-1]
@@ -8,103 +9,76 @@ def read_input():
     else: 
         return open('input.txt', 'r').read().strip()
 
-def solve():
-    f = read_input()
-    s = f.split("\n")
-    minX = 500
-    maxX = 500
-    Y = 0
-    points = []
-    for line in s:
-        x = line.split(" -> ")
-        pp = x.pop(0)
-        ppx, ppy = [int(xx) for xx in pp.split(",")]
-        minX = min(minX, ppx)
-        maxX = max(maxX, ppx)
-        Y = max(Y, ppy)
-        points.append((ppx,ppy))
-        for p in x:
-            px, py = [int(xx) for xx in p.split(",")]
-            if px > ppx:
-                for i in range(1, px - ppx + 1):
-                    points.append((ppx + i, py))
-            if ppx > px:
-                points.append((px, py))
-                for i in range(1, ppx - px + 1):
-                    points.append((px + i, py))
-            if py > ppy:
-                for i in range(1, py - ppy + 1):
-                    points.append((px , ppy + i))
-            if ppy > py:
-                points.append((px, py))
-                for i in range(1, ppy - py + 1):
-                    points.append((px, py + i))
+f = read_input()
+s = f.split("\n")
 
-            ppx, ppy = (px, py)
+points = defaultdict(int)
+for line in s:
+    parts = line.split(" -> ")
+    prev = (-1, -1)
+    for part in parts:
+        px, py = tuple(int(x) for x in part.split(','))
+        if prev == (-1,-1):
+            points[px,py] = 1
+            prev = (px, py)
+            continue
+        else:
+            if px == prev[0]:
+                my = max(py, prev[1])
+                for i in range(0, abs(py-prev[1])+1):
+                    points[px, my-i] = 1
+            if py == prev[1]:
+                mx = max(px, prev[0])
+                for i in range(0, abs(px-prev[0])+1):
+                    points[mx-i, py] = 1
 
-            minX = min(minX, px)
-            maxX = max(maxX, px)
-            Y = max(Y, py)
+            prev = (px,py)
 
-    X = maxX-minX
-    
-    G = [list('.'*(X+1)) for _ in range(Y+1)]
+Y = max(x[1] for x in points.keys())
+Xmax = max(x[0] for x in points.keys())
+Xmin = min(x[0] for x in points.keys())
+# print(Y, Xmax, Xmin)
+# print(points)
+#
+# for j in range(0, Y+1):
+#     r = ''
+#     for i in range(Xmin, Xmax+1):
+#         if (i,j) in points:
+#             r += '#'
+#         else:
+#             r += '.'
+#     print(r)
+#
 
-    for (px, py) in points:
-        assert 0 <= px-minX < X+1, (px,py)
-        assert 0 <= py < Y+1, (px,py)
-        G[py][px-minX] = '#'
+for i in range(-1000, 10000):
+    points[i, Y+2] = 1
 
-    source = (500, 0)
-    run = True
-    ans = 0
-    YY = Y + 2
-    while run:
-        pos = source
-        stopped = False
-        while not stopped:
-            if pos[1] == YY-1:
-                points.append((pos[0], pos[1]))
-                ans += 1
-                break
+pos = (500, 0)
+i = 0
+part1_done = False
 
-            np = (pos[0], pos[1]+1) 
-            if np not in points:
-                pos = np
-                continue
+while True:
+    if not part1_done and pos[1] == Y + 1:
+        print(i)
+        part1_done = True
 
-            np = (pos[0]-1, pos[1]+1)
-            if np not in points:
-                pos = np
-                continue
+    ny = pos[1]+1
+    nx = [pos[0]-1, pos[0]+1]
+    if (pos[0], ny) not in points:
+        pos = (pos[0], ny)
+        continue
+    elif (nx[0], ny) not in points:
+        pos = (nx[0], ny)
+        continue
+    elif (nx[1], ny) not in points:
+        pos = (nx[1], ny)
+        continue
 
-            np = (pos[0]+1, pos[1]+1)
-            if np not in points:
-                pos = np
-                continue
-
-            if pos == source:
-                ans += 1
-                run = False
-                break
-
-            points.append(pos)
-            ans += 1
-            break
-
-        if not run:
-            break
-
-    print(ans)
-            
+    if pos == (500,0):
+        print(i+1)
+        break
+    points[pos] = 2
+    pos = (500, 0)
+    i += 1
 
 
-
-
-
-
-
-
-if __name__ == "__main__":
-    solve()
-    # solve_2()
